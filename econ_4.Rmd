@@ -1,0 +1,24 @@
+---
+title: "econ_4"
+author: "Lydia Bleifuss"
+date: "5/29/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#set up 
+library(tidyverse)
+library(rootSolve)
+library(reconPlots)
+```
+
+```{r}
+#read in data
+abate_data <- read.csv("HW4Data.csv")
+abate_data
+```
+
