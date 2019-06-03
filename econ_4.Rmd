@@ -13,12 +13,191 @@ knitr::opts_chunk$set(echo = TRUE)
 #set up 
 library(tidyverse)
 library(rootSolve)
-library(reconPlots)
+library(janitor)
 ```
 
-```{r}
+```{r include= FALSE}
 #read in data
 abate_data <- read.csv("HW4Data.csv")
 abate_data
 ```
 
+### Part 1. Functional form for the marginal cost of abatement for each sector
+Write down a plausible functional form for the marginal cost of abatement for sector A. Use regression analysis to estimate the parameters of that function. Repeating this for sectors B, C, and D will give you a model of the marginal cost of abatement function for each sector. How well do your models fit the data for each sector? You may need to experiment with different functional forms. Produce a plot of the estimated marginal abatement cost functions in all four sectors (this plot should go in your memo).
+
+# Sector A
+```{r}
+
+#Explore the data for Sector A
+
+plot_sector_a <- ggplot(abate_data, aes(x = Abatement, y = MC_A ))+
+  geom_point()
+
+plot_sector_a # The data for Sector A appears linear
+
+# Use linear regression to find the function for Sector A
+
+sector_a_lm <- lm(MC_A ~ Abatement, data = abate_data)
+
+sector_a_lm
+
+# Plot the linear model to see if it fits the data well 
+
+sector_a_lm_plot <- ggplot(abate_data, aes(x=Abatement, y=MC_A)) +
+  geom_point() + 
+  geom_smooth(method = "lm", formula = y~x)
+
+sector_a_lm_plot # The model seems to fit the data
+
+# Save the regression coefficients
+
+sector_a_intercept <- sector_a_lm$coefficients[1]
+sector_a_slope <- sector_a_lm$coefficients[2]
+
+# Write the marginal abatement cost function for Sector A
+
+sector_a_function <- function(x){sector_a_intercept + sector_a_slope*x}
+
+```
+
+$Sector~A~Marginal~Abatement~Cost = `r sector_a_intercept`+`r sector_a_slope`*Q$ 
+
+# Sector B 
+
+```{r}
+
+#Explore the data for Sector B
+
+plot_sector_b <- ggplot(abate_data, aes(x = Abatement, y = MC_B ))+
+  geom_point()
+
+plot_sector_b # The data for sector B appears linear
+
+# Use linear regression to find the function for Sector B
+
+sector_b_lm <- lm(MC_B ~ Abatement, data = abate_data)
+
+sector_b_lm
+
+# Plot the linear model to see if it fits the data well 
+
+sector_b_lm_plot <- ggplot(abate_data, aes(x=Abatement, y=MC_B)) +
+  geom_point() + 
+  geom_smooth(method = "lm", formula = y~x)
+
+sector_b_lm_plot # The model seems to fit the data
+
+# Save the regression coefficients
+
+sector_b_intercept <- sector_b_lm$coefficients[1]
+sector_b_slope <- sector_b_lm$coefficients[2]
+
+# Write the marginal abatement cost function for Sector B
+
+sector_b_function <- function(x){sector_b_intercept + sector_b_slope*x}
+
+```
+
+$Sector~B~Marginal~Abatement~Cost = `r sector_b_intercept`+`r sector_b_slope`*Q$ 
+
+# Sector C
+
+```{r}
+
+#Explore the data for Sector C
+
+plot_sector_c <- ggplot(abate_data, aes(x = Abatement, y = MC_C ))+
+  geom_point()
+
+plot_sector_c # The data for sector C may be linear or exponential? Sam is using linear regression
+
+# Use linear regression to find the function for Sector C
+
+sector_c_lm <- lm(MC_C ~ Abatement, data = abate_data)
+
+sector_c_lm
+
+# Plot the linear model to see if it fits the data well 
+
+sector_c_lm_plot <- ggplot(abate_data, aes(x=Abatement, y=MC_C)) +
+  geom_point() + 
+  geom_smooth(method = "lm", formula = y~x)
+
+sector_c_lm_plot # The model seems to fit the data
+
+# Save the regression coefficients
+
+sector_c_intercept <- sector_c_lm$coefficients[1]
+sector_c_slope <- sector_c_lm$coefficients[2]
+
+# Write the marginal abatement cost function for Sector C
+
+sector_c_function <- function(x){sector_c_intercept + sector_c_slope*x}
+
+```
+
+$Sector~C~Marginal~Abatement~Cost = `r sector_c_intercept`+`r sector_c_slope`*Q$ 
+
+# Sector D 
+
+```{r}
+
+#Explore the data for Sector D
+
+plot_sector_d <- ggplot(abate_data, aes(x = Abatement, y = MC_D ))+
+  geom_point()
+
+plot_sector_d # The data for sector D appears mostly linear 
+
+# Use linear regression to find the function for Sector S
+
+sector_d_lm <- lm(MC_D ~ Abatement, data = abate_data)
+
+sector_d_lm
+
+# Plot the linear model to see if it fits the data well 
+
+sector_d_lm_plot <- ggplot(abate_data, aes(x=Abatement, y=MC_D)) +
+  geom_point() + 
+  geom_smooth(method = "lm", formula = y~x)
+
+sector_d_lm_plot # The model seems to fit the data
+
+# Save the regression coefficients
+
+sector_d_intercept <- sector_d_lm$coefficients[1]
+sector_d_slope <- sector_d_lm$coefficients[2]
+
+# Write the marginal abatement cost function for Sector D
+
+sector_d_function <- function(x){sector_d_intercept + sector_d_slope*x}
+
+```
+
+$Sector~D~Marginal~Abatement~Cost = `r sector_d_intercept`+`r sector_d_slope`*Q$ 
+
+# Plot the marginal abatment cost functions for all four sectors on one graph
+
+```{r}
+
+all_sectors_plot <- ggplot(data.frame(x = c(0, 200))) +
+  stat_function(fun = sector_a_function, aes(color = "A")) +
+  stat_function(fun = sector_b_function, aes(color = "B")) +
+  stat_function(fun = sector_c_function, aes(color = "C")) +
+  stat_function(fun = sector_d_function, aes(color = "D")) +
+  scale_y_continuous(limits= c(0,120), expand = c(0,0)) +
+  scale_x_continuous(limits= c(0, 200), expand = c(0,0)) + 
+  labs(fill = "", color = "Sector") +
+  xlab("\n Carbon Abatement (tons)") + 
+  ylab("Cost \n($/ton) \n") + 
+  ggtitle("Marginal Cost of Carbon Abatement in Four Economic Sectors\n") + 
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.title.y = element_text(angle=0, hjust = 0.5, vjust = 0.5), 
+        axis.title.x = element_text(angle=0, hjust = 0.5, vjust = 0.5) ) +
+  theme_classic() + scale_colour_manual("Sector", values = c("chartreuse4", "goldenrod1","dodgerblue2","red3"))
+
+all_sectors_plot
+```
+
+### Part 2. Derive a demand curve for each sector
+Using these models and the current level of carbon emissions, derive each sector’s demand curve for carbon emissions. In other words, how much would each sector be willing to pay for the right to pollute the first unit, second unit, etc? Draw these demand curves on a graph. Which sector is willing to pay the most for the first unit of carbon emissions?
