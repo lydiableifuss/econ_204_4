@@ -54,6 +54,7 @@ sector_a_lm_plot # The model seems to fit the data
 sector_a_intercept <- sector_a_lm$coefficients[1]
 sector_a_slope <- sector_a_lm$coefficients[2]
 
+
 # Write the marginal abatement cost function for Sector A
 
 sector_a_function <- function(x){sector_a_intercept + sector_a_slope*x}
@@ -201,3 +202,85 @@ all_sectors_plot
 
 ### Part 2. Derive a demand curve for each sector
 Using these models and the current level of carbon emissions, derive each sector’s demand curve for carbon emissions. In other words, how much would each sector be willing to pay for the right to pollute the first unit, second unit, etc? Draw these demand curves on a graph. Which sector is willing to pay the most for the first unit of carbon emissions?
+
+```{r}
+# To derive the demand curve for each sector we must determine the y intercept (abatement cost of 180th unit is the same as the cost of the first unit of emission)
+
+# use new y intercept to form y = mx + b, or the demand curve for carbon emissions for each sector. Then you are able to find the area under the demand curve, willingness to pay? 
+
+y_int_a <- sector_a_function(180)
+y_int_a #95.18706 (WTP for first unit)
+y_int_b <- sector_b_function(200)
+y_int_b #49.06656 (WTP for first unit)
+y_int_c <- sector_c_function(220)
+y_int_c #160.7868 (WTP for first unit)
+y_int_d <- sector_d_function(300)
+y_int_d #87.66577  (WTP for first unit)
+
+# Demand curve eqution for each sector (= intercept + slope*abatement)
+
+#Sector a slope (180)
+a_dem_slope <- (0-y_int_a)/(180-0)
+a_dem_slope
+
+#Sector a demand curve
+a_dem_curve <- function(x){
+  y_int_a + a_dem_slope*x
+}
+a_dem_curve
+
+curve(a_dem_curve, from=0, to=180, xlab = "x", ylab = "y")
+
+#Sector b slope (200)
+b_dem_slope <- (0-y_int_b)/(180-0)
+b_dem_slope
+
+#Sector b demand curve
+b_dem_curve <- function(x){
+  y_int_b + b_dem_slope*x
+}
+b_dem_curve
+
+#Sector c slope (220)
+c_dem_slope <- (0-y_int_c)/(180-0)
+c_dem_slope
+
+#Sector b demand curve
+c_dem_curve <- function(x){
+  y_int_c + c_dem_slope*x
+}
+c_dem_curve
+
+#Sector d slope (300) 
+d_dem_slope <- (0-y_int_d)/(180-0)
+d_dem_slope
+
+#Sector d demand curve
+d_dem_curve <- function(x){
+  y_int_d + d_dem_slope*x
+}
+d_dem_curve
+
+```
+
+```{r}
+all_sectors_demand <- ggplot(data.frame(x = c(0, 200))) +
+  stat_function(fun = a_dem_curve, aes(color = "A")) +
+  stat_function(fun = b_dem_curve, aes(color = "B")) +
+  stat_function(fun = c_dem_curve, aes(color = "C")) +
+  stat_function(fun = d_dem_curve, aes(color = "D")) +
+  scale_y_continuous(limits= c(0,200), expand = c(0,0)) +
+  scale_x_continuous(limits= c(0, 200), expand = c(0,0)) + 
+  labs(fill = "", color = "Sector") +
+  xlab("\n Carbon Emissions (tons)") + 
+  ylab("Cost \n($/ton) \n") + 
+  ggtitle("Marginal Willingness to Pay in Four Economic Sectors for Carbon Emissions\n") + 
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.title.y = element_text(angle=0, hjust = 0.5, vjust = 0.5), 
+        axis.title.x = element_text(angle=0, hjust = 0.5, vjust = 0.5) ) +
+  theme_classic() + scale_colour_manual("Sector", values = c("chartreuse4", "goldenrod1","dodgerblue2","red3"))
+
+all_sectors_demand
+
+```
+
