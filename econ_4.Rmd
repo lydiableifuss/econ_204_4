@@ -284,3 +284,186 @@ all_sectors_demand
 
 ```
 
+#3. 
+##[1]Total cost for meeting the target in county x
+##[2]The cost or benifit to each sector
+##[3]The tax revenue generated 
+
+##a. Cap on carbon: 300 tons in Country X:Each sector (A, B, and C) must cut its carbon emissions by 100 tons (thus reducing total emissions from 600 down to 300).
+
+```{r}
+#3a. 
+#new carbon emissions in sector (A = 80, B = 100, C= 120)
+mc_a <- sector_a_function(100)
+a_x_int <- sector_a_function(0)
+
+tc_a <- (0.5*mc_a*(100-a_x_int))
+tc_a
+#2663.95
+
+mc_b <- sector_b_function(100)
+b_x_int <- sector_b_function(0)
+
+tc_b <- (0.5*mc_b*(100-b_x_int))
+tc_b
+#1323.61
+
+mc_c <- sector_c_function(100)
+c_x_int <- sector_c_function(0)
+
+tc_c <- (0.5*mc_c*(100-c_x_int))
+tc_c
+#3725.238
+
+tc_total <- sum(tc_a, tc_b, tc_c)
+tc_total
+#7712.79
+
+# tax revenue is 0
+```
+
+##B. Tax
+#Tax on carbon. To emit a ton of carbon in country X, you must pay a tax of $t. You will need to find the tax that accomplishes the desired reduction.
+
+Set a tax where the marginal abatement costs are equal (equamarginal principle)
+
+```{r}
+#aggregate demand curve
+#switch a slope and int to be in terms of q=
+
+#Sector a slope and intercept (in terms of q) 
+a_demand_int1 <- (-y_int_a/a_dem_slope)
+a_demand_slope1 <- (1/a_dem_slope)
+a_demand1 <- function(x){a_demand_int1 + a_demand_slope1*x}
+
+#Sector b slope and intercept (in terms of q) 
+b_demand_int1 <- (-y_int_b/b_dem_slope)
+b_demand_slope1 <- (1/b_dem_slope)
+b_demand1 <- function(x){b_demand_int1 + b_demand_slope1*x}
+
+#Sector c slope and intercept (in terms of q) 
+c_demand_int1 <- (-y_int_c/c_dem_slope)
+c_demand_slope1 <- (1/c_dem_slope)
+c_demand1 <- function(x){c_demand_int1 + c_demand_slope1*x}
+
+#Sector d slope and intercept (in terms of q) 
+d_demand_int1 <- (-y_int_d/d_dem_slope)
+d_demand_slope1 <- (1/d_dem_slope)
+d_demand1 <- function(x){d_demand_int1 + d_demand_slope1*x}
+
+#Aggregate slope and intercept (in terms of q)
+agg_demand_int <- sum(a_demand_int1,b_demand_int1,c_demand_int1)
+agg_demand_slope <- sum(a_demand_slope1, b_demand_slope1, c_demand_slope1)
+
+#Transformed back in terms of p=
+agg_demand_int1 <- (-agg_demand_int/agg_demand_slope)
+agg_demand_slope1 <- (1/agg_demand_slope)
+agg_demand_curve <- function(x){agg_demand_int1 + agg_demand_slope1*x}
+
+#Determine the optimal tax at 300 tons 
+optimal_tax <- agg_demand_curve(300)
+optimal_tax
+#35.93
+```
+
+```{r}
+##Plot to determine areas under curves
+
+agg_demand_plot <- ggplot(data.frame(x=c(0,200))) + 
+  stat_function(fun=agg_demand_curve, geom="line", aes(color = "Aggregate Demand"))+
+  scale_x_continuous(limits =c(0,350), expand = c(0,0))+
+  scale_y_continuous(limits=c(0,200), expand=c(0,0))+
+  theme_classic() +
+  labs(fill = "", 
+       color = "Sector",
+       x = "Carbon Emissions (tons)",
+       y = "Price ($/ton)")+
+  ggtitle("Aggregate Demand for Sector A, B, C & D Carbon Emissions")+
+  theme_classic() + scale_colour_manual("Sector", values = c("chartreuse4"))
+
+agg_demand_plot
+```
+
+```{r}
+#emissions from sector A
+a_emissions_tax <- a_demand1(optimal_tax)
+#102.66 tons of CO2 (if they are emitting this much they abate nothing???)
+
+#cost of reduction for sector A
+a_mc_abate <- sector_a_function(180-a_emissions_tax)
+a_cost_tax <- (0.5*(180-a_x_int)*a_mc_abate)
+a_cost_tax
+#2881.77
+
+#emissions from sector B
+b_emissions_tax <- b_demand1(optimal_tax)
+b_emissions_tax
+#48.18
+
+#cost of reduction for sector B
+b_mc_abate <- sector_b_function(200-b_emissions_tax)
+b_cost_tax <- (0.5*(200-b_x_int)*b_mc_abate)
+b_cost_tax
+#3765.16
+
+#emissions from sector C
+c_emissions_tax <- c_demand1(optimal_tax)
+c_emissions_tax
+#139.78
+
+#cost of reduction for sector C
+c_mc_abate <- sector_c_function(220-a_emissions_tax)
+c_cost_tax <- (0.5*(220-c_x_int)*a_mc_abate)
+c_cost_tax
+#3538.81
+
+total_emissions <- sum(a_emissions_tax, b_emissions_tax, c_emissions_tax)
+total_emissions
+#300 (GREAT)
+
+cost_total<-sum(a_cost_tax,b_cost_tax,c_cost_tax)
+cost_total
+#10185.74
+
+tax_rev <- optimal_tax*300
+tax_rev
+#10780.07
+```
+"Equimarginal principle: firms will trade until the cost of abatement is the same across firms. We aggregate the demand curves hoirzontally since it is a private good. Since the goal is to abate 300 units of emissions the total cost of abatement that meets the equimarginal principle is 10185.74"
+
+##C.Cap and Trade Country X: Each sector (A, B, C) is allocated carbon permits equal to their current emissions minus 100 (same as in (a) above), thus achieving the total reduction of 300. Then, these three sectors are allowed to trade with each other. You will need to derive the outcome of that trading.
+
+```{r}
+
+#price of optimal tax is equal to price of cap and trade permits
+
+a_benefit_trade <- (100-a_emissions_tax)*optimal_tax
+a_benefit_trade
+#-432.9696 
+#benefit emit less than 100 and sell extra permits
+
+b_benefit_trade <- (100-b_emissions_tax)*optimal_tax
+b_benefit_trade
+#1862.14
+#cost because c emits more than 100)
+
+c_benefit_trade <- (100-c_emissions_tax)*optimal_tax
+c_benefit_trade
+#-1429.17
+#benefit emit less than 100 and sell extra permits (most benefits to sector B - lowest MC of abatement and can benefit the most out of all secotrs from abating and trading credits) 
+
+```
+
+#4. Again, without any co-benefits, suppose that country Y (which only has one carbon-emitting sector, D) has no obligation to reduce its emissions. Country X asks country Y to enter the country X carbon market. Doing so would require country Y to put a cap on carbon emissions at its current level of emissions (300 tons), but would then allow country Y to sell carbon offsets to sectors A, B, or C. Are there any incentives for country Y to enter country X’s carbon market and to thus place a voluntary cap on its emissions? Are there any incentives for country X to try to attract country Y into its market?
+
+#it would be a benefit to country Y to enter the carbon market because it has a lower cost of abatement of carbon emissions relative to sectors A and C, and WTP for the first units, and therefore would be able to sell/trade carbon credits to Sectors A and C at a benefit to country Y. 
+
+#conversly, country x will want to invite country Y as it would be able to buy permits at a lower cost to emit more carbon without surpassing MC of abatement at emission levels past 100 tons within the market 
+
+#5. Now assume that every ton of carbon emissions creates 1 ton of local air pollution. Local air pollution causes economic damages (health, environmental, etc.), but only in the country in which it is emitted. Assume there are no local air pollution regulations in either country X or country Y.
+
+#a. In a carbon cap and trade market that only covers sectors in country X, how much local air pollution would you expect in country X? In country Y?
+
+#b. If country Y enters the carbon market for country X (as in question 4 above), how much local pollution will there be in country X and country Y?
+
+
