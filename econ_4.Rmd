@@ -232,7 +232,7 @@ a_dem_curve
 curve(a_dem_curve, from=0, to=180, xlab = "x", ylab = "y")
 
 #Sector b slope (200)
-b_dem_slope <- (0-y_int_b)/(180-0)
+b_dem_slope <- (0-y_int_b)/(200-0)
 b_dem_slope
 
 #Sector b demand curve
@@ -242,7 +242,7 @@ b_dem_curve <- function(x){
 b_dem_curve
 
 #Sector c slope (220)
-c_dem_slope <- (0-y_int_c)/(180-0)
+c_dem_slope <- (0-y_int_c)/(220-0)
 c_dem_slope
 
 #Sector b demand curve
@@ -252,7 +252,7 @@ c_dem_curve <- function(x){
 c_dem_curve
 
 #Sector d slope (300) 
-d_dem_slope <- (0-y_int_d)/(180-0)
+d_dem_slope <- (0-y_int_d)/(300-0)
 d_dem_slope
 
 #Sector d demand curve
@@ -270,7 +270,7 @@ all_sectors_demand <- ggplot(data.frame(x = c(0, 200))) +
   stat_function(fun = c_dem_curve, aes(color = "C")) +
   stat_function(fun = d_dem_curve, aes(color = "D")) +
   scale_y_continuous(limits= c(0,200), expand = c(0,0)) +
-  scale_x_continuous(limits= c(0, 200), expand = c(0,0)) + 
+  scale_x_continuous(limits= c(0, 350), expand = c(0,0)) + 
   labs(fill = "", color = "Sector") +
   xlab("\n Carbon Emissions (tons)") + 
   ylab("Cost \n($/ton) \n") + 
@@ -319,7 +319,7 @@ tc_total <- sum(tc_a, tc_b, tc_c)
 tc_total
 #7712.79
 
-# tax revenue is 0
+# tax revenue is 0 (because there is no tax) 
 ```
 
 ##B. Tax
@@ -351,7 +351,7 @@ d_demand_int1 <- (-y_int_d/d_dem_slope)
 d_demand_slope1 <- (1/d_dem_slope)
 d_demand1 <- function(x){d_demand_int1 + d_demand_slope1*x}
 
-#Aggregate slope and intercept (in terms of q)
+#Aggregate slope and intercept (in terms of q) (ONLY sectos A, B, C)
 agg_demand_int <- sum(a_demand_int1,b_demand_int1,c_demand_int1)
 agg_demand_slope <- sum(a_demand_slope1, b_demand_slope1, c_demand_slope1)
 
@@ -387,7 +387,7 @@ agg_demand_plot
 ```{r}
 #emissions from sector A
 a_emissions_tax <- a_demand1(optimal_tax)
-#102.66 tons of CO2 (if they are emitting this much they abate nothing???)
+#102.66 
 
 #cost of reduction for sector A
 a_mc_abate <- sector_a_function(180-a_emissions_tax)
@@ -419,15 +419,15 @@ c_cost_tax
 
 total_emissions <- sum(a_emissions_tax, b_emissions_tax, c_emissions_tax)
 total_emissions
-#300 (GREAT)
+#300 (GREAT, can tell that is is optimal because it adds up to 300)
 
 cost_total<-sum(a_cost_tax,b_cost_tax,c_cost_tax)
 cost_total
-#10185.74
+#10185.74 (total cost of abatement that meets the equamarginal principle)
 
 tax_rev <- optimal_tax*300
 tax_rev
-#10780.07
+#10780.07 (at optimal tax for sectors A, B, C)
 ```
 "Equimarginal principle: firms will trade until the cost of abatement is the same across firms. We aggregate the demand curves hoirzontally since it is a private good. Since the goal is to abate 300 units of emissions the total cost of abatement that meets the equimarginal principle is 10185.74"
 
@@ -436,6 +436,7 @@ tax_rev
 ```{r}
 
 #price of optimal tax is equal to price of cap and trade permits
+#
 
 a_benefit_trade <- (100-a_emissions_tax)*optimal_tax
 a_benefit_trade
@@ -468,7 +469,7 @@ d_emissions_tax <- sector_d_function(optimal_tax)
 d_emissions_tax
 #19.03
 
-#cost of reduction for sector C
+#cost of reduction for sector d
 d_mc_abate <- sector_d_function(300-d_emissions_tax)
 d_mc_abate
 #82.72
@@ -480,6 +481,7 @@ d_mc_abate
 
 #conversly, country x will want to invite country Y as it would be able to buy permits at a lower cost to emit more carbon without surpassing MC of abatement at emission levels past 100 tons within the market 
 
+#########
 #5. Now assume that every ton of carbon emissions creates 1 ton of local air pollution. Local air pollution causes economic damages (health, environmental, etc.), but only in the country in which it is emitted. Assume there are no local air pollution regulations in either country X or country Y.
 
 #a. In a carbon cap and trade market that only covers sectors in country X, how much local air pollution would you expect in country X? In country Y?
