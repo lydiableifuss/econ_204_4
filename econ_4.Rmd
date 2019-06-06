@@ -412,10 +412,10 @@ c_emissions_tax
 #139.78
 
 #cost of reduction for sector C
-c_mc_abate <- sector_c_function(220-a_emissions_tax)
-c_cost_tax <- (0.5*(220-c_x_int)*a_mc_abate)
+c_mc_abate <- sector_c_function(220-c_emissions_tax)
+c_cost_tax <- (0.5*(220-c_x_int)*c_mc_abate)
 c_cost_tax
-#3538.81
+#5933.77
 
 total_emissions <- sum(a_emissions_tax, b_emissions_tax, c_emissions_tax)
 total_emissions
@@ -455,6 +455,26 @@ c_benefit_trade
 ```
 
 #4. Again, without any co-benefits, suppose that country Y (which only has one carbon-emitting sector, D) has no obligation to reduce its emissions. Country X asks country Y to enter the country X carbon market. Doing so would require country Y to put a cap on carbon emissions at its current level of emissions (300 tons), but would then allow country Y to sell carbon offsets to sectors A, B, or C. Are there any incentives for country Y to enter country X’s carbon market and to thus place a voluntary cap on its emissions? Are there any incentives for country X to try to attract country Y into its market?
+
+```{r}
+#more about sector d
+#Sector d slope and intercept (in terms of q) 
+d_demand_int1 <- (-y_int_d/d_dem_slope)
+d_demand_slope1 <- (1/d_dem_slope)
+d_demand1 <- function(x){d_demand_int1 + d_demand_slope1*x}
+
+#emissions from sector d
+d_emissions_tax <- sector_d_function(optimal_tax)
+d_emissions_tax
+#19.03
+
+#cost of reduction for sector C
+d_mc_abate <- sector_d_function(300-d_emissions_tax)
+d_mc_abate
+#82.72
+
+```
+
 
 #it would be a benefit to country Y to enter the carbon market because it has a lower cost of abatement of carbon emissions relative to sectors A and C, and WTP for the first units, and therefore would be able to sell/trade carbon credits to Sectors A and C at a benefit to country Y. 
 
